@@ -1,5 +1,8 @@
 #pragma once
 
+#include <stdint.h>
+#include <stdlib.h>
+
 #include <izi/mpl.hpp>
 
 namespace izi {
@@ -19,13 +22,13 @@ template<class T> struct remove_const<const T>       { typedef T type; };
 template<class T> struct remove_volatile             { typedef T type; };
 template<class T> struct remove_volatile<volatile T> { typedef T type; };
 
-
 template<class T> struct is_pointer_helper: false_type {};
 template<class T> struct is_pointer_helper<T*>: true_type {};
  
 template<class T> struct is_pointer: is_pointer_helper<typename remove_cv<T>::type> {};
 
-template<typename T> struct is_signed: bool_type<(T(-1) < T(0))> {};
+#define SIGNED_CMP(tp) (tp(-1)<tp(0))
+template<typename T> struct is_signed: bool_type<SIGNED_CMP(T)> {};
 
 template<typename T> struct is_integral: false_type {};
 template<> struct is_integral<char>: true_type {};
@@ -49,5 +52,11 @@ struct is_same: izi::false_type {};
  
 template<class T>
 struct is_same<T, T>: izi::true_type {};
+
+template<class T, size_t N>
+constexpr size_t array_length(const T (&array)[N]) noexcept { return N; }
+
+template<char ... chars>
+struct char_array { static constexpr unsigned size = sizeof...(chars); };
 
 } // namespace izi

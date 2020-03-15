@@ -1,24 +1,24 @@
 #pragma once
 
-#include <izi/utils/bitmask.hpp>
+#include <izi/bitmask.hpp>
 
 namespace izi {
 namespace utils {
 
 struct Flags 
 {
-    template<uint8_t f>
-    void set_flag() { 
-        _flags |= utils::bitmask<f>::mask; 
-    }
+  template<uint8_t f>
+  void set_flag(const bool value) { 
+    bitmask<f>::set(_flags, value);
+  }
 
-    template<uint8_t f>
-    bool get_flag() const {
-        return _flags & utils::bitmask<f>::mask;
-    }
+  template<uint8_t f>
+  bool get_flag() const {
+    bitmask<f>::get(_flags);
+  }
 
 private:
-    uint8_t _flags;
+  uint8_t _flags;
 };
 
 } // namepsace utils

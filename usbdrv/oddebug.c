@@ -19,14 +19,12 @@ static void uartPutc(char c)
     ODDBG_UDR = c;
 }
 
-static uchar    hexAscii(uchar h)
+static uchar hexAscii(uchar h)
 {
     h &= 0xf;
     if(h >= 10)
         h += 'a' - (uchar)10 - '0';
-    h += '0';
-    //h += (h < 10) ? '0' : ('A'-10);
-    return h;
+    return h + '0';
 }
 
 static void printHex(uchar c)

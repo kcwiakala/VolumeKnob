@@ -20,6 +20,6 @@ struct bool_type: integral_type<int(V)> { };
 struct true_type: bool_type<true> { };
 struct false_type: bool_type<false> { };
 
-template<int T> struct none_type;
+template<typename T> struct none_type;
 
 } // namespace izi

@@ -3,13 +3,13 @@
 
 izi::InterruptHandler* gHandler = nullptr;
 
-void izi::isr::pcint0::attach(izi::InterruptHandler& handler)
+void izi::isr::pcint1::attach(izi::InterruptHandler& handler)
 {
   handler._next = gHandler;
   gHandler = &handler;
 }
 
-ISR(PCINT0_vect, ISR_NOBLOCK)
+ISR(PCINT1_vect, ISR_NOBLOCK)
 {
   auto handler = gHandler;
   while(handler) {

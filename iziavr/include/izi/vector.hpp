@@ -1,21 +1,33 @@
 #pragma once
 
+#include <stdlib.h>
+
 namespace izi {
 
-template<typename T, size_t N>
+template<typename T>
 class vector {
 public:
-    void push_back(const T& v) {
-        _data[_size++] = v;
-    }
+  void push_back(const T& v) {
+    _data = (T*)realloc((void*)_data, sizeof(T)*(_size + 1));
+    *(_data+_size) = v;
+    ++_size;
+  }
 
-    T operator[](const uint8_t i) {
-        return _data[i];
-    }
+  T* begin() {
+    return _data;
+  }
+
+  T* end() {
+    return _data + _size;
+  }
+
+  uint8_t size() const {
+    return _size;
+  }
 
 private:
-    uint8_t _size;
-    T _data[N];
+  uint8_t _size = 0;
+  T* _data = nullptr;
 };
 
 } // namespace izi

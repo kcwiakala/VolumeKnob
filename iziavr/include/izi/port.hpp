@@ -1,19 +1,25 @@
 #pragma once
 
 #include <izi/traits/port.hpp>
-#include <izi/utils/bitmask.hpp>
+#include <izi/bitmask.hpp>
 
 namespace izi {
-namespace details {
+namespace detail {
+
+template<class p1, class p2> struct port_merge;
 
 template<typename Traits, int ...bits>
-struct Port
+struct Port: izi::bitmask<bits...>
 {
-  using bitmask_t = utils::bitmask<bits...>;
+  using self_t = Port<Traits, bits...>;
+  using bitmask_t = izi::bitmask<bits...>;
   static constexpr uint8_t mask = bitmask_t::mask;
   static constexpr uint8_t size = sizeof...(bits);
   using traits_type = Traits;
   
+  template<typename other>
+  using merge = port_merge<self_t, other>;
+
   Port(const bool output = true, const bool pullup = false) 
   {
     setup(output, pullup);
@@ -21,31 +27,23 @@ struct Port
 
   static void setup(const bool output, const bool pullup = false)
   {
-    if(output) {
-      Traits::output(mask);
-    } else {
-      Traits::input(mask);
-    }
+    bitmask_t::set(Traits::ddr(), output);
     set(pullup);
   }
 
   static void set(const bool value)
   {
-    if(value) {
-      Traits::set(mask);
-    } else {
-      Traits::clear(mask);
-    }
+    bitmask_t::set(Traits::port(), value);
   }
 
   static void toggle() 
   {
-    Traits::toggle(mask);
+    bitmask_t::toggle(Traits::port());
   }
 
   static uint8_t get()
   {
-    return Traits::get(mask);
+    return bitmask_t::get(Traits::pin());
   }
 
   static bool any()
@@ -58,24 +56,37 @@ struct Port
     return get() == mask;
   }
 
+  static uint8_t count()
+  {
+    return __builtin_popcount(get());
+  }
+
+  static bool none()
+  {
+    return get() == 0;
+  }
+
   static uint8_t collapsed()
   {
     return bitmask_t::collapse(get());
   }
 };
 
-} // namespace details
+template<typename Traits, int ... b1, int ... b2>
+struct port_merge<Port<Traits, b1...>, Port<Traits, b2...> >: Port<Traits, b1..., b2...> { };
+
+} // namespace detail
 
 template<int ... bits> 
-using PortA = details::Port<traits::A, bits...>;
+using PortA = detail::Port<traits::PortA, bits...>;
 
 template<int ... bits> 
-using PortB = details::Port<traits::B, bits...>;
+using PortB = detail::Port<traits::PortB, bits...>;
 
 template<int ... bits> 
-using PortC = details::Port<traits::C, bits...>;
+using PortC = detail::Port<traits::PortC, bits...>;
 
 template<int ... bits> 
-using PortD = details::Port<traits::D, bits...>;
+using PortD = detail::Port<traits::PortD, bits...>;
 
 } // namespace izi

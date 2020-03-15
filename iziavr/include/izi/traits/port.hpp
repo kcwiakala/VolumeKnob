@@ -6,59 +6,47 @@ namespace izi {
 namespace traits {
 
 #ifdef PORTA
-struct A 
+struct PortA 
 {
-    static void input(const uint8_t mask) { DDRA |= mask; }
-    static void output(const uint8_t mask) { DDRA &= ~mask; }
-    static void set(const uint8_t mask) { PORTA |= mask; }
-    static void clear(const uint8_t mask) { PORTA &= ~mask; }
-    static void toggle(const uint8_t mask) { PORTA ^= mask; }
-    static uint8_t get(const uint8_t mask) { return PINA & mask; }
+  static auto ddr()  -> decltype(DDRA)   { return DDRA; }
+  static auto port() -> decltype(PORTA)  { return PORTA; }
+  static auto pin()  -> decltype(PINA)   { return PINA; }
 };
 #else
-struct A;
+struct PortA;
 #endif
 
 #ifdef PORTB
-struct B
+struct PortB
 {
-    static void input(const uint8_t mask) { DDRB |= mask; }
-    static void output(const uint8_t mask) { DDRB &= ~mask; }
-    static void set(const uint8_t mask) { PORTB |= mask; }
-    static void clear(const uint8_t mask) { PORTB &= ~mask; }
-    static void toggle(const uint8_t mask) { PORTB ^= mask; }
-    static uint8_t get(const uint8_t mask) { return PINB & mask; }
+  static auto ddr()  -> decltype(DDRB)   { return DDRB; }
+  static auto port() -> decltype(PORTB)  { return PORTB; }
+  static auto pin()  -> decltype(PINB)   { return PINB; }
 };
 #else
-struct B;
+struct PortB;
 #endif
 
 #ifdef PORTC
-struct C
+struct PortC
 {
-    static void input(const uint8_t mask) { DDRC |= mask; }
-    static void output(const uint8_t mask) { DDRC &= ~mask; }
-    static void set(const uint8_t mask) { PORTC |= mask; }
-    static void clear(const uint8_t mask) { PORTC &= ~mask; }
-    static void toggle(const uint8_t mask) { PORTC ^= mask; }
-    static uint8_t get(const uint8_t mask) { return PINC & mask; }
+  static auto ddr()  -> decltype(DDRC)   { return DDRC; }
+  static auto port() -> decltype(PORTC)  { return PORTC; }
+  static auto pin()  -> decltype(PINC)   { return PINC; }
 };
 #else
-struct C;
+struct PortC;
 #endif
 
 #ifdef PORTD
-struct D
+struct PortD
 {
-    static void input(const uint8_t mask) { DDRD |= mask; }
-    static void output(const uint8_t mask) { DDRD &= ~mask; }
-    static void set(const uint8_t mask) { PORTD |= mask; }
-    static void clear(const uint8_t mask) { PORTD &= ~mask; }
-    static void toggle(const uint8_t mask) { PORTD ^= mask; }
-    static uint8_t get(const uint8_t mask) { return PIND & mask; }
+  static auto ddr()  -> decltype(DDRD)  { return DDRD; }
+  static auto port() -> decltype(PORTD) { return PORTD; }
+  static auto pin()  -> decltype(PIND)  { return PIND; }
 };
 #else
-struct D;
+struct PortD;
 #endif
 
 } // namespace traits

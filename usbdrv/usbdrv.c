@@ -116,8 +116,8 @@ PROGMEM const char usbDescriptorDevice[] = {    /* USB device descriptor */
     /* the following two casts affect the first byte of the constant only, but
      * that's sufficient to avoid a warning with the default values.
      */
-    (char)USB_CFG_VENDOR_ID,/* 2 bytes */
-    (char)USB_CFG_DEVICE_ID,/* 2 bytes */
+    USB_CFG_VENDOR_ID,/* 2 bytes */
+    USB_CFG_DEVICE_ID,/* 2 bytes */
     USB_CFG_DEVICE_VERSION, /* 2 bytes */
     USB_CFG_DESCR_PROPS_STRING_VENDOR != 0 ? 1 : 0,         /* manufacturer string index */
     USB_CFG_DESCR_PROPS_STRING_PRODUCT != 0 ? 2 : 0,        /* product string index */
