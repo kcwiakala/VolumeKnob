@@ -12,7 +12,7 @@ namespace izi {
 const char* const endl = "\r\n";
 
 template< uint32_t baudrate, uint8_t precision = 2 >
-class Debug: public Uart<baudrate>, public utils::Flags
+class Debug: public Uart<baudrate, 8, 0>, public utils::Flags
 {
   static_assert(precision < 7, "Too large precision specified");
   static constexpr unsigned long p_mul = utils::pow<10,precision>::value;

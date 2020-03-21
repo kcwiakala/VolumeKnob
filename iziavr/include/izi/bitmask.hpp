@@ -17,7 +17,7 @@ struct bitmask
   }
 
   template<typename T>
-  static void set(T& v, const bool enabled) {
+  static void set(T& v, const bool enabled = true) {
     if(enabled) {
       v |= Derived::mask;
     } else {

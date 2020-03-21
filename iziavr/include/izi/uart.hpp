@@ -4,80 +4,88 @@
 
 #include <avr/io.h>
 
-#if defined UDRE
-  #define IZI_UDRE UDRE
-#else
-	#define IZI_UDRE UDRE0
-#endif
-
-#if defined UCR
-	#define IZI_UCR UCR
-#elif defined UCSRB
-  #define IZI_UCR UCSRB
-#elif defined UCSR0B
-  #define IZI_UCR UCSR0B
-#endif
-
-#if defined UDR
-  #define IZI_UDR UDR
-#elif defined UDR0
-  #define IZI_UDR UDR0
-#endif
-
-#if defined USR
-  #define IZI_USR USR
-#elif defined UCSRA
-  #define IZI_USR UCSRA
-#elif defined UCSR0A
-  #define IZI_USR UCSR0A
-#endif
-
-#if defined UBRR
-  #define IZI_UBRRL UBRR
-#elif defined UBRRL
-  #define IZI_UBRRL UBRRL
-#elif defined UBRR0
-  #define IZI_UBRRL UBRR0
-#elif defined UBRR0L
-  #define IZI_UBRRL UBRR0L
-#endif
-
-#if defined UBRRH
-  #define IZI_UBRRH UBRRH
-#elif defined UBRR1
-  #define IZI_UBRRH UBRR1
-#elif defined UBRR0H
-  #define IZI_UBRRH UBRR0H
-#endif
-
-#if defined TXEN
-  #define IZI_TXEN TXEN
-#else
-  #define IZI_TXEN TXEN0
-#endif
+#include <izi/bitmask.hpp>
+#include <izi/buffer.hpp>
+#include <izi/delay.hpp>
+#include <izi/lock.hpp>
+#include <izi/traits/uart.hpp>
 
 namespace izi {
-
-template<uint32_t baudrate>
-class Uart
+namespace detail {
+  
+struct UartIsrHandler
 {
-	static constexpr uint32_t br = F_CPU/(16*baudrate)-1;
-	static constexpr uint8_t brl = br & 0xFF;
-	static constexpr uint8_t brh = (br >> 8) & 0xFF;
+  UartIsrHandler();
+  virtual void rxIsr() { }
+  virtual void txIsr() { }
+};
 
+template<uint8_t TxBufferSize>
+class UartTransmitter: UartIsrHandler
+{
 public:
-	Uart() {
-		IZI_UCR |= (1<<IZI_TXEN);
-		IZI_UBRRL = brl;
-		#if defined IZI_UBRRH
-		IZI_UBRRH = brh;
-		#endif
+	void tx(char c) {
+    izi::Lock lock;
+    lock.wait([this] () { return _txBuffer.full(); });
+    _txBuffer.push(c);
+    traits::Uart::enableTxIsr(true);
 	}
 
-protected:
-	void tx(char c) const {
-		while(!(IZI_USR & (1 << IZI_UDRE)));
-		IZI_UDR = c;
+private:
+  void txIsr() override {
+    if(_txBuffer.empty()) {
+      traits::Uart::enableTxIsr(false);
+    } else {
+      traits::Uart::data() = _txBuffer.get();
+    }
+  }
+
+  buffer<char, TxBufferSize> _txBuffer;
+};
+
+template<uint8_t TxBufferSize, uint8_t RxBufferSize>
+class Uart: public UartTransmitter<TxBufferSize>
+{
+public:
+  Uart() {
+    izi::bitmask<IZI_UART_FLAG(TXEN), IZI_UART_FLAG(RXEN)>::set(traits::Uart::ctrl());
+    traits::Uart::enableRxIsr(true);
+  }
+
+  char rx() {
+    izi::Lock lock;
+    lock.wait([this] () { return _rxBuffer.full(); });
+    return _rxBuffer.get();
+  }
+
+private:
+  void rxIsr() override {
+    if(!_rxBuffer.full()) {
+      _rxBuffer.push(traits::Uart::data());
+    }
+  }
+
+private:
+  buffer<char, RxBufferSize> _rxBuffer;
+};
+
+template<uint8_t TxBufferSize>
+class Uart<TxBufferSize, 0>: public UartTransmitter<TxBufferSize> 
+{ 
+public:
+  Uart() {
+    izi::bitmask<IZI_UART_FLAG(TXEN)>::set(traits::Uart::ctrl());
+  }
+};
+
+} // namespace detail 
+
+template<uint32_t baudrate, uint8_t TxBufferSize = 16, uint8_t RxBufferSize = 16>
+class Uart: public detail::Uart<TxBufferSize, RxBufferSize>
+{
+public:
+	Uart() {
+    traits::Uart::setup<baudrate>();        
 	}
 };
 

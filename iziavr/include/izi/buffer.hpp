@@ -2,28 +2,37 @@
 
 namespace izi {
 
-template<typaname T, uint8_t Size>
+template<typename T, uint8_t Size>
 struct buffer
 {
   void push(T v) {
-    _back = (_back+1) % Size;
-    _data[pos] = v;
+    _data[(_head + _count) % Size] = v;
+    ++_count;
   }
 
   T get() {
-    const uint8_t pos = _front;
-    _front = (_front+1) % Size;
-    return _data[pos];
+    const T v = _data[_head];
+    _head = (_head + 1) % Size;
+    --_count;
+    return v;
   }
 
-  uint8_t size() const {
-    return (Size + _front - _back) % Size;
+  bool full() const {
+    return _count >= Size;
+  }
+
+  bool empty() const {
+    return _count == 0;
+  }
+
+  void clear() {
+    _count = 0;
   }
 
 private:
   T _data[Size];
-  uint8_t _front = 0;
-  uint8_t _back = 0;
-}
+  uint8_t _head = 0;
+  uint8_t _count = 0;
+};
 
 } // namespace izi

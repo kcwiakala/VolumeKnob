@@ -3,7 +3,7 @@
 
 #ifdef PCMSK0
 
-izi::InterruptHandler* gHandler = nullptr;
+static izi::InterruptHandler* gHandler = nullptr;
 
 void izi::isr::pcint0::attach(izi::InterruptHandler& handler)
 {
