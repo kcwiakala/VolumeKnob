@@ -14,7 +14,23 @@ struct InterruptHandler
 
 namespace isr {
 
-#ifdef PCIE0
+#ifdef PCMSK
+struct pcint
+{
+  template<typename BitMask>
+  static void setup() {
+    BitMask::assign(PCMSK);
+  }
+
+  static void enable(const bool enabled) {
+    izi::bitmask<PCIE>::set(GIMSK, enabled);
+  }
+
+  static void attach(InterruptHandler& handler);
+};
+#endif
+
+#ifdef PCMSK0
 struct pcint0 
 {
   template<typename BitMask>
@@ -30,7 +46,7 @@ struct pcint0
 };
 #endif
 
-#ifdef PCIE1
+#ifdef PCMSK1
 struct pcint1
 {
   template<typename BitMask>
@@ -46,7 +62,7 @@ struct pcint1
 };
 #endif
 
-#ifdef PCIE2
+#ifdef PCMSK2
 struct pcint2
 {
   template<typename BitMask>

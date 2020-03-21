@@ -1,8 +1,8 @@
 #pragma once
 
-#include "HidDevice.hpp"
+#include <vusb/HidDevice.hpp>
 
-class VolumeController: public HidDevice<uint8_t>
+class VolumeController: public vusb::HidDevice<uint8_t>
 {
 public:
   VolumeController();

@@ -1,6 +1,8 @@
 #include <avr/interrupt.h>
 #include <izi/interrupt.hpp>
 
+#ifdef PCMSK2
+
 izi::InterruptHandler* gHandler = nullptr;
 
 void izi::isr::pcint2::attach(izi::InterruptHandler& handler)
@@ -17,3 +19,5 @@ ISR(PCINT2_vect, ISR_NOBLOCK)
     handler = handler->_next;
   }
 }
+
+#endif

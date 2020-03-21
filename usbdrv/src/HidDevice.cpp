@@ -6,9 +6,12 @@
 
 #include "HidDevice.hpp"
 
-static IHidDevice* gDevice = nullptr;
+static vusb::detail::HidDeviceBase* gDevice = nullptr;
 
-void IHidDevice::init()
+namespace vusb {
+namespace detail {
+
+void HidDeviceBase::init()
 {
   gDevice = this;
   cli();
@@ -21,10 +24,13 @@ void IHidDevice::init()
   sei();
 }
 
-usbMsgLen_t IHidDevice::functionSetup(usbRequest_t& request)
+usbMsgLen_t HidDeviceBase::functionSetup(usbRequest_t& request)
 {
   return 0;
 }
+
+} // namespace detail
+} // namespace vusb
 
 usbMsgLen_t usbFunctionSetup(uchar data[8])
 {

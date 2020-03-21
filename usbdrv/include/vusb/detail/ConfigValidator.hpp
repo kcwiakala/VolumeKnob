@@ -1,48 +1,14 @@
 #pragma once
 
-#include <avr/wdt.h>
-
-#include <usbdrv.h>
-
 #include <izi/mpl.hpp>
 #include <izi/type_traits.hpp>
 
-struct IHidDevice
+namespace vusb {
+namespace detail {
+
+class ConfigValidator
 {
-  ~IHidDevice() {}
-
-  void init();
-
-  virtual usbMsgLen_t functionSetup(usbRequest_t& request);
-};
-
-template<typename ReportBuffer>
-class HidDevice: public IHidDevice
-{
-public:
-  template <class T>
-  HidDevice(const T& hidReportDesctiptor)
-  {
-    validateReportDescriptor(hidReportDesctiptor);
-  }
-
-  void setInterrupt()
-  {
-    usbSetInterrupt((uchar*)&_reportBuffer, sizeof(_reportBuffer));
-  }
-
-  void waitForHost()
-  {
-    while (!usbInterruptIsReady()) {
-      usbPoll();
-      wdt_reset();
-    }
-  }
-
 protected:
-    ReportBuffer _reportBuffer;
-
-private:
   template<int N> struct Please_Update__USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH__to;
   template<int N> struct Please_Update__USB_CFG_VENDOR_NAME_LEN__to;
   template<int N> struct Please_Update__USB_CFG_DEVICE_NAME_LEN__to;
@@ -77,3 +43,6 @@ private:
   >;
   using device_name_check_t = izi::integral_type<sizeof(device_name_value_t)>;
 };
+
+} // namespace detail
+} // namespace vusb

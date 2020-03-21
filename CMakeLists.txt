@@ -50,7 +50,7 @@ project (usb-knob C CXX ASM)
 add_subdirectory(usbdrv)
 add_subdirectory(iziavr)
 
-file(GLOB_RECURSE SRC_FILES "src/*.c" "src/*.cpp") 
+file(GLOB_RECURSE SRC_FILES "firmware/*.cpp") 
 
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 target_link_libraries(${PROJECT_NAME} usbdrv)
